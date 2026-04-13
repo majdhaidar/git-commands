@@ -1,0 +1,58 @@
+# TITLE: The Git Commands I Run Before Reading Any Code
+
+The commit history give us a diagnostic picture of the project
+1- who built it
+2- where the problem cluster
+3- whether the team is shipping in confidence or tiptoeing around land mines
+
+
+# COMMANDS:
+
+1) What Changed The Most?
+
+Command: 
+git log --format=format: --name-only --since="1 year ago" | sort | uniq -c | sort -nr | head -20
+
+Description:
+
+The 20 most-changed files in the last year. The file at the top is almost always the one people warn me about. “Oh yeah, that file. Everyone’s afraid to touch it.”
+
+High churn on a file doesn’t mean it’s bad. Sometimes it’s just active development. But high churn on a file that nobody wants to own is the clearest signal of codebase drag I know. 
+That’s the file where every change is a patch on a patch. The blast radius of a small edit is unpredictable. The team pads their estimates because they know it’s going to fight back.
+I take the top 5 files from this list and cross-reference them against the bug hotspot command below. A file that’s high-churn and high-bug is your single biggest risk.
+
+2) Who Built This?
+
+Command:
+git shortlog -sn --no-merges
+
+Description:
+Every contributor ranked by commit count. If one person accounts for 60% or more, that’s your bus factor. If they left six months ago, it’s a crisis. If the top contributor from the overall shortlog doesn’t 
+appear in a 6-month window (git shortlog -sn --no-merges --since="6 months ago"), I flag that to the client immediately.
+
+Thirty contributors but only three active in the last year. The people who built this system aren’t the people maintaining it.
+One caveat: squash-merge workflows compress authorship. If the team squashes every PR into a single commit, this output reflects who merged, not who wrote. Worth asking about the merge strategy before drawing conclusions.
+
+3) Where Do Bugs Cluster?
+
+Command:
+git log -i -E --grep="fix|bug|broken" --name-only --format='' | sort | uniq -c | sort -nr | head -20
+
+Description:
+Same shape as the churn command, filtered to commits with bug-related keywords. Compare this list against the churn hotspots. Files that appear on both are your highest-risk code: they keep breaking and keep getting patched, 
+but never get properly fixed.
+
+This depends on commit message discipline. If the team writes “update stuff” for every commit, you’ll get nothing. But even a rough map of bug density is better than no map.
+
+4) How Often Is The Tram Firefighting
+
+Command:
+git log --oneline --since="1 year ago" | grep -iE 'revert|hotfix|emergency|rollback'
+
+Description:
+Revert and hotfix frequency. A handful over a year is normal. Reverts every couple of weeks means the team doesn’t trust its deploy process. They’re evidence of a deeper issue: unreliable tests, missing staging, 
+or a deploy pipeline that makes rollbacks harder than they should be. Zero results is also a signal; either the team is stable, or nobody writes descriptive commit messages.
+
+Crisis patterns are easy to read. Either they’re there or they’re not.
+
+https://piechowski.io/post/git-commands-before-reading-code/?utm_source=substack&utm_medium=email
