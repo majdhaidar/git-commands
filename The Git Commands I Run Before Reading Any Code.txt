@@ -55,4 +55,15 @@ or a deploy pipeline that makes rollbacks harder than they should be. Zero resul
 
 Crisis patterns are easy to read. Either they’re there or they’re not.
 
+5) Is This Project Accelarating Or Dying
+
+Command:
+git log --format='%ad' --date=format:'%Y-%m' | sort | uniq -c
+
+
+Description:
+Commit count by month, for the entire history of the repo. I scan the output looking for shapes. A steady rhythm is healthy. But what does it look like 
+when the count drops by half in a single month? Usually someone left. A declining curve over 6 to 12 months tells you the team is losing momentum. 
+Periodic spikes followed by quiet months means the team batches work into releases instead of shipping continuously.
+
 https://piechowski.io/post/git-commands-before-reading-code/?utm_source=substack&utm_medium=email
